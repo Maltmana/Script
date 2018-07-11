@@ -1,0 +1,115 @@
+@lazyglobal off.
+
+//COUNTDOWN
+PRINT "COUNTINGDOWN".
+FROM {local countdown is launchCountdown.} until countdown = 0 step {set countdown to countdown - 1.} do {
+	print "...." + countdown.
+	wait 1.
+	}.
+	
+	
+
+//staging (no drop tanks)
+	global stagemaxthrust to ship:maxthrustat(0).
+	when (ship:maxthrustat(0) < stagemaxthrust or (ship:maxthrustat(0) < 1)) then {
+		if stage:ready {
+		stage. //automatically waits a tick
+		set stagemaxthrust to ship:maxthrustat(0).
+		}.
+		if stage:number > 0 {
+		preserve.
+		}.
+	}.
+	
+	
+	
+//PREVENTS ROLL
+SET STEERINGMANAGER:ROLLPID:KP TO 0.
+SET STEERINGMANAGER:ROLLPID:KI TO 0.
+
+
+//vec draw
+set vd1 to vecdraw(v(0,0,0), 0.1*VELOCITY:SURFACE, red, "VELOCITY:SURFACE", 1.0, true, 0.2).
+
+
+
+//printing
+when showData then{
+	local printList to list(
+		//
+		"Hello"
+	).
+	PrintFromList(printList).
+	preserve.
+	
+	
+	
+//PID LOOPS
+	local myPidLoop to pidloop(3).
+
+until false {
+	set myPidLoop:setpoint to 0. //we want 0 vert speed.
+	global pidOut to myPidLoop:update(time:seconds, ship:verticalspeed). //the in is the thing to correct - vertical speed.
+	set throttle to pidOut.
+}
+
+
+
+
+
+//PARTS ACCESS
+If you only remember one technique, it should be using the Part:PARTSDUBBED method described down below. 
+It’s the most useful one that covers all the other cases.
+
+//
+SET onePart TO somevessel:PARTSDUBBED("my favorite engine")[0].
+If the name does not exist, you can tell by seeing if the list returned has a length of zero:
+
+IF somevessel:PARTSDUBBED("my favorite engine"):LENGTH = 0 {
+  PRINT "There is no part named 'my favorite engine'.".
+}.
+
+//PART ACCESS list 
+FOR somechute IN somevessel:PARTSNAMED("parachuteDrogue") {
+  somechute:GETMODULE("ModuleParachute"):SETFIELD("DEPLOYALTITUDE", 1500).
+  //
+  SET ves TO SHIP.
+SET PLIST TO ves:PARTSNAMED("someNameHere").
+Return a List of just the parts that have had some sort of activity attached to action group 1:
+//
+SET ves TO SHIP. // or Target or Vessel("ship name").
+SET PLIST TO ves:PARTSINGROUP(AG1).
+}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TERMINAL INPUT 
+
+FUNCTION terminalInputHandler{
+	PARAMETER _x.
+	IF TERMINAL:INPUT:HASCHAR() {
+	set ch to terminal:input:getchar().
+		if ch = "w" {
+		  print "You typed w.".
+		  set _x to _x + 1.
+		}
+		if ch = "s" {
+		  print "You typed s.".
+		  set _x to _x - 1.
+		}
+		RETURN _x.
+	} ELSE {
+	RETURN _x.
+	}
+}
+
