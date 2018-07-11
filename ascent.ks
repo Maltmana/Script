@@ -6,12 +6,14 @@ run _lib.
 Pre().
 
 until false {
-	AllScience().
+
 	
 	
-//Alert("Running ascent"). Ascent().
+Alert("Running ascent"). Ascent().
 
+AllScience().
 
+wait 0.1.
 }
 
 End().

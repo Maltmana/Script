@@ -58,18 +58,21 @@ function End{
 function AllScience{ //WORKS IN UNTIL LOOP
 	for myPart in ship:parts{
 		if myPart:hasmodule("ModuleScienceExperiment") {
-			local eventNameList to myPart:getmodule("ModuleScienceExperiment"):alleventnames.
-			local eventNameToDo to "null".
+			local myModule is myPart:getmodule("ModuleScienceExperiment").//caching sciencemodule		
 
+			local eventNameList to myModule:alleventnames. //setting up backup checks because mymodule:hasdata messes up randomly. and i get out of bounds errors on the else if
+			local eventNameToDo to "null".
 			for eventName in eventNameList {
 				set eventNameToDo to eventName. 
-			}
-			if myPart:getmodule("ModuleScienceExperiment"):hasevent(eventNameToDo) {
-				myPart:getmodule("ModuleScienceExperiment"):doevent(eventNameToDo).
-				print("DOING " + eventNameToDo + " FOR " + myPart:name).
-			}
-			else {
-				print("null:" + eventNameToDo).
+			}		
+
+			if myModule:hasdata() AND myModule:data[0]:sciencevalue = 0{ //if there is data and the data sucks then reset the module and redeploy.
+				myModule:reset().
+				//myModule:deploy(). this breaks it because reset takes a tick.
+			} else if not myModule:hasdata() { //if have no data.
+				if myModule:hasevent(eventNameToDo) { //secondary check cause hasdata sucks.
+					myModule:deploy().
+				}
 			}
 		}	
 	}
